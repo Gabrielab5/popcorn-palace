@@ -1,0 +1,35 @@
+@WebMvcTest(MovieController.class)
+class MovieControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private MovieRepository movieRepository;
+
+    @Test
+    void testAddMovie() throws Exception {
+        Movie movie = new Movie(null, "Inception", "Sci-Fi", 148, 8.8, 2010);
+        Mockito.when(movieRepository.save(Mockito.any(Movie.class))).thenReturn(movie);
+
+        mockMvc.perform(post("/api/movies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(movie)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Inception"));
+
+        Mockito.verify(movieRepository, Mockito.times(1)).save(Mockito.any(Movie.class));
+
+    }
+
+    @Test
+    void testAddMovieInvalidData() throws Exception {
+    Movie movie = new Movie(null, "", "Sci-Fi", 148, 8.8, 2010); 
+
+    mockMvc.perform(post("/api/movies")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(movie)))
+            .andExpect(status().isBadRequest());
+}
+
+}

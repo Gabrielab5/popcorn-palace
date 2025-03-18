@@ -1,0 +1,9 @@
+package com.att.tdp.popcorn_palace.dto;
+
+public class MovieRequestDto {
+    @NotEmpty public String title;
+    @NotEmpty public String genre;
+    public int duration;
+    public double rating;
+    public int releaseYear;
+}

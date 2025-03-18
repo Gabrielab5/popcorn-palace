@@ -1,0 +1,35 @@
+@Service
+public class ShowtimeService {
+
+    private final ShowtimeRepository showtimeRepository;
+    private final MovieRepository movieRepository;
+
+    public ShowtimeService(ShowtimeRepository showtimeRepository, MovieRepository movieRepository) {
+        this.showtimeRepository = showtimeRepository;
+        this.movieRepository = movieRepository;
+    }
+
+    public Showtime createShowtime(ShowtimeRequestDto dto) {
+        Movie movie = movieRepository.findById(dto.movieId)
+            .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
+
+        Showtime showtime = new Showtime();
+        showtime.setMovie(movie);
+        showtime.setTheater(dto.theater);
+        showtime.setStartTime(dto.startTime);
+        showtime.setEndTime(dto.endTime);
+        showtime.setPrice(dto.price);
+
+        return showtimeRepository.save(showtime);
+    }
+
+    public List<Showtime> getAllShowtimes() {
+        return showtimeRepository.findAll();
+    }
+
+    public void deleteShowtime(Long id) {
+        if (!showtimeRepository.existsById(id))
+            throw new ResourceNotFoundException("Showtime not found");
+        showtimeRepository.deleteById(id);
+    }
+}

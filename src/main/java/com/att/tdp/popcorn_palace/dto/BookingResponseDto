@@ -1,0 +1,17 @@
+public class BookingResponseDto {
+    public Long id;
+    public String movieTitle;
+    public String theater;
+    public LocalDateTime startTime;
+    public int seatNumber;
+    public String customerName;
+
+    public BookingResponseDto(Booking booking) {
+        this.id = booking.getId();
+        this.movieTitle = booking.getShowtime().getMovie().getTitle();
+        this.theater = booking.getShowtime().getTheater();
+        this.startTime = booking.getShowtime().getStartTime();
+        this.seatNumber = booking.getSeatNumber();
+        this.customerName = booking.getCustomerName();
+    }
+}

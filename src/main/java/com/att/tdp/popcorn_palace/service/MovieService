@@ -1,0 +1,40 @@
+@Service
+public class MovieService {
+    private final MovieRepository repository;
+
+    public MovieService(MovieRepository repository) {
+        this.repository = repository;
+    }
+
+    // Create movie
+    public Movie createMovie(Movie movie) {
+        return repository.save(movie);
+    }
+
+    // Get all movies
+    public List<Movie> getAllMovies() {
+        return repository.findAll();
+    }
+
+    // Update movie
+    public Movie updateMovie(Long id, MovieRequestDto dto) {
+        Movie movie = repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Movie not found with ID: " + id));
+
+        movie.setTitle(dto.title);
+        movie.setGenre(dto.genre);
+        movie.setDuration(dto.duration);
+        movie.setRating(dto.rating);
+        movie.setReleaseYear(dto.releaseYear);
+
+        return repository.save(movie);
+    }
+
+    // Delete movie
+    public void deleteMovie(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Movie not found with ID: " + id);
+        }
+        repository.deleteById(id);
+    }
+}

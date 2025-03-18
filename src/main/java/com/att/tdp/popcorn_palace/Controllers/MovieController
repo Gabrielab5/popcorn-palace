@@ -1,0 +1,50 @@
+@RestController
+@RequestMapping("/api/movies")
+public class MovieController {
+    
+    private final MovieService service;
+
+    // Constructor Injection of MovieService
+    public MovieController(MovieService service) {
+        this.service = service;
+    }
+
+    
+    // Create new movie
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public MovieResponseDto addMovie(@Valid @RequestBody MovieRequestDto dto) {
+        Movie movie = new Movie();
+        movie.setTitle(dto.title);
+        movie.setGenre(dto.genre);
+        movie.setDuration(dto.duration);
+        movie.setRating(dto.rating);
+        movie.setReleaseYear(dto.releaseYear);
+
+        Movie savedMovie = service.createMovie(movie);
+        return new MovieResponseDto(savedMovie);
+    }
+
+    // Get all movies
+    @GetMapping
+    public List<MovieResponseDto> getAllMovies() {
+        List<Movie> movies = movieService.getAllMovies();
+        return movies.stream()
+            .map(MovieResponseDto::new)
+            .collect(Collectors.toList());
+    }
+
+    // Delete movie by ID
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMovie(@PathVariable Long id) {
+        movieService.deleteMovie(id);
+    }
+
+    // Exception handler for movie not found
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleNotFound(Exception ex) {
+        return ex.getMessage();
+    }
+}

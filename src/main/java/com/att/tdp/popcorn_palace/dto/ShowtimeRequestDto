@@ -1,0 +1,7 @@
+public class ShowtimeRequestDto {
+    public Long movieId;
+    public String theater;
+    public LocalDateTime startTime;
+    public LocalDateTime endTime;
+    public double price;
+}

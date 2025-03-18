@@ -1,0 +1,33 @@
+@RestController
+@RequestMapping("/api/showtimes")
+public class ShowtimeController {
+
+    private final ShowtimeService service;
+
+    public ShowtimeController(ShowtimeService service) {
+        this.service = service;
+    }
+
+    // Create a new showtime
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ShowtimeResponseDto addShowtime(@Valid @RequestBody ShowtimeRequestDto dto) {
+        Showtime savedShowtime = service.createShowtime(dto);
+        return new ShowtimeResponseDto(savedShowtime);
+    }
+
+    // Get all showtimes
+    @GetMapping
+    public List<ShowtimeResponseDto> getAllShowtimes() {
+        return service.getAllShowtimes().stream()
+            .map(ShowtimeResponseDto::new)
+            .collect(Collectors.toList());
+    }
+
+    // Delete a showtime
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteShowtime(@PathVariable Long id) {
+        service.deleteShowtime(id);
+    }
+}

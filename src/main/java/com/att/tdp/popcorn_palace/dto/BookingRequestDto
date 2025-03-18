@@ -1,0 +1,5 @@
+public class BookingRequestDto {
+    public Long showtimeId;
+    public int seatNumber;
+    public String customerName;
+}

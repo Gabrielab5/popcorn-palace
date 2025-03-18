@@ -1,0 +1,37 @@
+@Service
+public class BookingService {
+
+    private final BookingRepository bookingRepository;
+    private final ShowtimeRepository showtimeRepository;
+
+    public BookingService(BookingRepository bookingRepository, ShowtimeRepository showtimeRepository) {
+        this.bookingRepository = bookingRepository;
+        this.showtimeRepository = showtimeRepository;
+    }
+
+    public Booking createBooking(BookingRequestDto dto) {
+        Showtime showtime = showtimeRepository.findById(dto.showtimeId)
+            .orElseThrow(() -> new ResourceNotFoundException("Showtime not found"));
+
+        Booking booking = new Booking();
+        booking.setShowtime(showtime);
+        booking.setSeatNumber(dto.seatNumber);
+        booking.setCustomerName(dto.customerName);
+
+        try {
+            return bookingRepository.save(booking);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat already booked");
+        }
+    }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
+
+    public void deleteBooking(Long id) {
+        if (!bookingRepository.existsById(id))
+            throw new ResourceNotFoundException("Booking not found");
+        bookingRepository.deleteById(id);
+    }
+}
