@@ -1,0 +1,152 @@
+package com.att.tdp.popcorn_palace.controller;
+
+import com.att.tdp.popcorn_palace.dto.ShowtimeRequestDto;
+import com.att.tdp.popcorn_palace.entity.Movie;
+import com.att.tdp.popcorn_palace.entity.Showtime;
+import com.att.tdp.popcorn_palace.service.ShowtimeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(ShowtimeController.class)
+public class ShowtimeControllerTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private ShowtimeService showtimeService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    public void contextLoads() {
+        // Test context loading for ShowtimeController
+    }
+
+    @Test
+    public void testAddShowtime() throws Exception {
+        ShowtimeRequestDto requestDto = new ShowtimeRequestDto();
+        requestDto.movieId = 1L;
+        requestDto.theater = "Theater 1";
+        requestDto.startTime = LocalDateTime.now().plusDays(1);
+        requestDto.endTime = LocalDateTime.now().plusDays(1).plusHours(2);
+        requestDto.price = 10.0;
+
+        // Prepare sample Movie entity
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("Inception");
+
+        Showtime showtime = new Showtime();
+        showtime.setId(1L);
+        showtime.setMovie(movie);
+        showtime.setTheater(requestDto.theater);
+        showtime.setStartTime(requestDto.startTime);
+        showtime.setEndTime(requestDto.endTime);
+        showtime.setPrice(requestDto.price);
+
+        when(showtimeService.createShowtime(any(ShowtimeRequestDto.class))).thenReturn(showtime);
+
+        mockMvc.perform(post("/api/showtimes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.movieTitle").value("Inception"));
+    }
+
+    @Test
+    public void testGetAllShowtimes() throws Exception {
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("Inception");
+
+        Showtime showtime1 = new Showtime();
+        showtime1.setId(1L);
+        showtime1.setMovie(movie);
+        showtime1.setTheater("Theater 1");
+        showtime1.setStartTime(LocalDateTime.now().plusDays(1));
+        showtime1.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
+        showtime1.setPrice(10.0);
+
+        Showtime showtime2 = new Showtime();
+        showtime2.setId(2L);
+        showtime2.setMovie(movie);
+        showtime2.setTheater("Theater 2");
+        showtime2.setStartTime(LocalDateTime.now().plusDays(2));
+        showtime2.setEndTime(LocalDateTime.now().plusDays(2).plusHours(2));
+        showtime2.setPrice(12.0);
+
+        when(showtimeService.getAllShowtimes()).thenReturn(Arrays.asList(showtime1, showtime2));
+
+        mockMvc.perform(get("/api/showtimes")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    public void testDeleteShowtime() throws Exception {
+        Long showtimeId = 1L;
+        doNothing().when(showtimeService).deleteShowtime(showtimeId);
+
+        mockMvc.perform(delete("/api/showtimes/" + showtimeId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testAddShowtimeInvalidTimeRange() throws Exception {
+        // Case where startTime is after endTime, service should throw an exception.
+        ShowtimeRequestDto requestDto = new ShowtimeRequestDto();
+        requestDto.movieId = 1L;
+        requestDto.theater = "Theater 1";
+        requestDto.startTime = LocalDateTime.of(2025, 4, 1, 22, 0);
+        requestDto.endTime = LocalDateTime.of(2025, 4, 1, 20, 0);
+        requestDto.price = 10.0;
+
+        when(showtimeService.createShowtime(any(ShowtimeRequestDto.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time must be before end time"));
+
+        mockMvc.perform(post("/api/showtimes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testAddOverlappingShowtime() throws Exception { 
+        // Case where a new showtime overlaps with an existing one so service throws exception.
+        ShowtimeRequestDto requestDto = new ShowtimeRequestDto();
+        requestDto.movieId = 1L;
+        requestDto.theater = "Theater 1";
+        requestDto.startTime = LocalDateTime.of(2025, 4, 1, 18, 0);
+        requestDto.endTime = LocalDateTime.of(2025, 4, 1, 20, 0);
+        requestDto.price = 12.0;
+
+        when(showtimeService.createShowtime(any(ShowtimeRequestDto.class)))
+            .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Overlapping showtime in the same theater"));
+
+        mockMvc.perform(post("/api/showtimes")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isBadRequest());
+    }
+}

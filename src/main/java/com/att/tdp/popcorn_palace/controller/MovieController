@@ -28,7 +28,7 @@ public class MovieController {
     // Get all movies
     @GetMapping
     public List<MovieResponseDto> getAllMovies() {
-        List<Movie> movies = movieService.getAllMovies();
+        List<Movie> movies = service.getAllMovies();
         return movies.stream()
             .map(MovieResponseDto::new)
             .collect(Collectors.toList());
@@ -38,7 +38,7 @@ public class MovieController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMovie(@PathVariable Long id) {
-        movieService.deleteMovie(id);
+        service.deleteMovie(id);
     }
 
     // Exception handler for movie not found

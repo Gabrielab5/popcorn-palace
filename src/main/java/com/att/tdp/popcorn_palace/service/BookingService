@@ -13,6 +13,12 @@ public class BookingService {
         Showtime showtime = showtimeRepository.findById(dto.showtimeId)
             .orElseThrow(() -> new ResourceNotFoundException("Showtime not found"));
 
+        // Check if the seat is already booked for this showtime
+        boolean seatBooked = bookingRepository.existsByShowtimeAndSeatNumber(showtime, dto.seatNumber);
+        if (seatBooked) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat already booked for this showtime");
+        }
+        
         Booking booking = new Booking();
         booking.setShowtime(showtime);
         booking.setSeatNumber(dto.seatNumber);

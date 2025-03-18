@@ -8,7 +8,7 @@ public class ShowtimeController {
         this.service = service;
     }
 
-    // Create a new showtime
+    // Creates a new showtime
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ShowtimeResponseDto addShowtime(@Valid @RequestBody ShowtimeRequestDto dto) {
@@ -16,7 +16,7 @@ public class ShowtimeController {
         return new ShowtimeResponseDto(savedShowtime);
     }
 
-    // Get all showtimes
+    // Returns all showtimes
     @GetMapping
     public List<ShowtimeResponseDto> getAllShowtimes() {
         return service.getAllShowtimes().stream()
@@ -24,6 +24,19 @@ public class ShowtimeController {
             .collect(Collectors.toList());
     }
 
+    // Retrieves a specific showtime by its id.
+    @GetMapping("/{id}")
+    public ResponseEntity<ShowtimeResponseDto> getShowtimeById(@PathVariable Long id) {
+        Showtime showtime = service.getShowtimeById(id);
+        return ResponseEntity.ok(new ShowtimeResponseDto(showtime));
+    }
+
+    // Update a showtime
+    @PutMapping("/{id}")
+    public ResponseEntity<ShowtimeResponseDto> updateShowtime(@PathVariable Long id, @Valid @RequestBody ShowtimeRequestDto dto) {
+        Showtime updated = service.updateShowtime(id, dto);
+        return ResponseEntity.ok(new ShowtimeResponseDto(updated));
+    }
     // Delete a showtime
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

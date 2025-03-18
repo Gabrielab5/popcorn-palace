@@ -1,3 +1,5 @@
+// DTO for returning showtime details.
+
 public class ShowtimeResponseDto {
     public Long id;
     public String movieTitle;
@@ -8,6 +10,7 @@ public class ShowtimeResponseDto {
 
     public ShowtimeResponseDto(Showtime showtime) {
         this.id = showtime.getId();
+        // Assuming the associated Movie has a non-null title.
         this.movieTitle = showtime.getMovie().getTitle();
         this.theater = showtime.getTheater();
         this.startTime = showtime.getStartTime();

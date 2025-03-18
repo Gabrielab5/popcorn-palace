@@ -8,10 +8,18 @@ public class ShowtimeService {
         this.showtimeRepository = showtimeRepository;
         this.movieRepository = movieRepository;
     }
-
+ 
+    // Creates a new showtime after verifying that there is no overlapping showtime in the same theater.
     public Showtime createShowtime(ShowtimeRequestDto dto) {
+        // Retrieve the associated movie
         Movie movie = movieRepository.findById(dto.movieId)
             .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
+
+        // Check for overlapping showtimes in the same theater.
+        boolean overlapping = showtimeRepository.overlappingShowtime(dto.theater, dto.endTime, dto.startTime);
+        if (overlapping) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Overlapping showtime in the same theater");
+        }
 
         Showtime showtime = new Showtime();
         showtime.setMovie(movie);
@@ -23,10 +31,41 @@ public class ShowtimeService {
         return showtimeRepository.save(showtime);
     }
 
+    // Returns all showtimes.
     public List<Showtime> getAllShowtimes() {
         return showtimeRepository.findAll();
     }
 
+    // Returns a specific showtime by its id.
+    public Showtime getShowtimeById(Long id) {
+        return showtimeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found"));
+    }
+
+    // Updates an existing showtime with new data, checking for overlapping if times or theater change.
+    public Showtime updateShowtime(Long id, ShowtimeRequestDto dto) {
+        Showtime existing = getShowtimeById(id);
+
+        // If any of the time or theater fields change, check for overlapping showtimes.
+        if (!existing.getTheater().equals(dto.theater) ||
+            !existing.getStartTime().equals(dto.startTime) ||
+            !existing.getEndTime().equals(dto.endTime)) {
+
+            boolean overlapping = showtimeRepository.overlappingShowtime( dto.theater, dto.endTime, dto.startTime);
+            if (overlapping) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Overlapping showtime in the same theater");
+            }
+        }
+        // Update fields
+        existing.setTheater(dto.theater);
+        existing.setStartTime(dto.startTime);
+        existing.setEndTime(dto.endTime);
+        existing.setPrice(dto.price);
+
+        return showtimeRepository.save(existing);
+    }
+
+    // Deletes a showtime by its id.
     public void deleteShowtime(Long id) {
         if (!showtimeRepository.existsById(id))
             throw new ResourceNotFoundException("Showtime not found");
