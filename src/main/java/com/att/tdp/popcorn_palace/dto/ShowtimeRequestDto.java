@@ -19,4 +19,14 @@ public class ShowtimeRequestDto {
 
     @NotNull(message = "Price is required")
     public double price;
+
+    public ShowtimeRequestDto(String theater, LocalDateTime startTime, LocalDateTime endTime) {
+        this.theater = theater;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public String getTheater() { return theater; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public LocalDateTime getEndTime() { return endTime; }
 }

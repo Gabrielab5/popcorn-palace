@@ -29,6 +29,7 @@
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
     	<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.parameters>true</maven.compiler.parameters>
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
