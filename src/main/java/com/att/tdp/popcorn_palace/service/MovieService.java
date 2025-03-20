@@ -1,3 +1,13 @@
+package com.att.tdp.popcorn_palace.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import com.att.tdp.popcorn_palace.dto.MovieRequestDto;
+import com.att.tdp.popcorn_palace.entity.Movie;
+import com.att.tdp.popcorn_palace.exception.ResourceNotFoundException;
+import com.att.tdp.popcorn_palace.repository.MovieRepository;
+
 @Service
 public class MovieService {
     private final MovieRepository repository;

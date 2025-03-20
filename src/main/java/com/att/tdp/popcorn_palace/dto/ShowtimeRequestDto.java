@@ -1,4 +1,8 @@
 // DTO for creating or updating a showtime.
+package com.att.tdp.popcorn_palace.dto;
+import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class ShowtimeRequestDto {
     @NotNull(message = "Movie ID is required")

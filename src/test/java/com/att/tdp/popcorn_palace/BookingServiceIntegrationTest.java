@@ -1,10 +1,9 @@
-package com.att.tdp.popcorn_palace.integration;
+package com.att.tdp.popcorn_palace;
 
 import com.att.tdp.popcorn_palace.dto.BookingRequestDto;
 import com.att.tdp.popcorn_palace.entity.Booking;
 import com.att.tdp.popcorn_palace.entity.Movie;
 import com.att.tdp.popcorn_palace.entity.Showtime;
-import com.att.tdp.popcorn_palace.repository.BookingRepository;
 import com.att.tdp.popcorn_palace.repository.MovieRepository;
 import com.att.tdp.popcorn_palace.repository.ShowtimeRepository;
 import com.att.tdp.popcorn_palace.service.BookingService;
@@ -30,7 +29,7 @@ public class BookingServiceIntegrationTest {
     private MovieRepository movieRepository;
 
     @Autowired
-    private BookingRepository bookingRepository;
+    //private BookingRepository bookingRepository;
 
     @Test
     public void testDuplicateBookingPrevention() {

@@ -1,3 +1,7 @@
+package com.att.tdp.popcorn_palace.dto;
+import java.time.LocalDateTime;
+import com.att.tdp.popcorn_palace.entity.Booking;
+
 public class BookingResponseDto {
     public Long id;
     public String movieTitle;

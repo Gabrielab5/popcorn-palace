@@ -1,3 +1,17 @@
+package com.att.tdp.popcorn_palace.service;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import com.att.tdp.popcorn_palace.dto.ShowtimeRequestDto;
+import com.att.tdp.popcorn_palace.entity.Movie;
+import com.att.tdp.popcorn_palace.entity.Showtime;
+import com.att.tdp.popcorn_palace.exception.ResourceNotFoundException;
+import com.att.tdp.popcorn_palace.repository.MovieRepository;
+import com.att.tdp.popcorn_palace.repository.ShowtimeRepository;
+
 @Service
 public class ShowtimeService {
 

@@ -1,15 +1,13 @@
 package com.att.tdp.popcorn_palace;
 
+import com.att.tdp.popcorn_palace.controller.MovieController;
 import com.att.tdp.popcorn_palace.dto.MovieRequestDto;
 import com.att.tdp.popcorn_palace.entity.Movie;
 import com.att.tdp.popcorn_palace.service.MovieService;
-import com.att.tdp.popcorn_palace.dto.MovieResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,7 +29,6 @@ public class MovieControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
     private MovieService movieService;
 
     @Autowired

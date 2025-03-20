@@ -1,5 +1,6 @@
-package com.att.tdp.popcorn_palace.controller;
+package com.att.tdp.popcorn_palace;
 
+import com.att.tdp.popcorn_palace.controller.BookingController;
 import com.att.tdp.popcorn_palace.dto.BookingRequestDto;
 import com.att.tdp.popcorn_palace.entity.Booking;
 import com.att.tdp.popcorn_palace.entity.Movie;
@@ -7,10 +8,8 @@ import com.att.tdp.popcorn_palace.entity.Showtime;
 import com.att.tdp.popcorn_palace.service.BookingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,7 +30,6 @@ public class BookingControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
     private BookingService bookingService;
 
     @Autowired

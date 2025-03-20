@@ -1,5 +1,10 @@
 // DTO for creating a booking.
 
+package com.att.tdp.popcorn_palace.dto;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public class BookingRequestDto {
     
     @NotNull(message = "Showtime ID is required")

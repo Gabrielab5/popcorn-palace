@@ -1,4 +1,7 @@
 // DTO for returning showtime details.
+package com.att.tdp.popcorn_palace.dto;
+import java.time.LocalDateTime;
+import com.att.tdp.popcorn_palace.entity.Showtime;
 
 public class ShowtimeResponseDto {
     public Long id;
