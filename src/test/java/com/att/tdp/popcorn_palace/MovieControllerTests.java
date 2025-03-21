@@ -41,26 +41,23 @@ public class MovieControllerTests {
 
     @Test
     public void testAddMovie() throws Exception {
-        // Prepare request DTO
         MovieRequestDto requestDto = new MovieRequestDto();
-        requestDto.title = "Inception";
-        requestDto.genre = "Sci-Fi";
-        requestDto.duration = 148;
-        requestDto.rating = 8.8;
-        requestDto.releaseYear = 2010;
-
-        // Prepare entity to be returned by the service
+        requestDto.setTitle("Inception");
+        requestDto.setGenre("Sci-Fi");
+        requestDto.setDuration(148);
+        requestDto.setRating(8.8);
+        requestDto.setReleaseYear(2010);
+    
         Movie movie = new Movie();
         movie.setId(1L);
-        movie.setTitle(requestDto.title);
-        movie.setGenre(requestDto.genre);
-        movie.setDuration(requestDto.duration);
-        movie.setRating(requestDto.rating);
-        movie.setReleaseYear(requestDto.releaseYear);
-
-        // Simulate service behavior
-        when(movieService.createMovie(any(Movie.class))).thenReturn(movie);
-
+        movie.setTitle(requestDto.getTitle());
+        movie.setGenre(requestDto.getGenre());
+        movie.setDuration(requestDto.getDuration());
+        movie.setRating(requestDto.getRating());
+        movie.setReleaseYear(requestDto.getReleaseYear());
+    
+        when(movieService.createMovie(any(MovieRequestDto.class))).thenReturn(movie);
+    
         mockMvc.perform(post("/api/movies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
@@ -68,6 +65,7 @@ public class MovieControllerTests {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("Inception"));
     }
+    
 
     @Test
     public void testGetAllMovies() throws Exception {
@@ -101,19 +99,19 @@ public class MovieControllerTests {
     public void testUpdateMovie() throws Exception {
         Long movieId = 1L;
         MovieRequestDto updateDto = new MovieRequestDto();
-        updateDto.title = "Inception Updated";
-        updateDto.genre = "Sci-Fi";
-        updateDto.duration = 148;
-        updateDto.rating = 8.9;
-        updateDto.releaseYear = 2010;
+        updateDto.setTitle("UPDATE Inception");
+        updateDto.setGenre("Sci-Fi");
+        updateDto.setDuration(148);
+        updateDto.setRating(8.9);
+        updateDto.setReleaseYear(2010);
 
         Movie updatedMovie = new Movie();
         updatedMovie.setId(movieId);
-        updatedMovie.setTitle(updateDto.title);
-        updatedMovie.setGenre(updateDto.genre);
-        updatedMovie.setDuration(updateDto.duration);
-        updatedMovie.setRating(updateDto.rating);
-        updatedMovie.setReleaseYear(updateDto.releaseYear);
+        updatedMovie.setTitle(updateDto.getTitle());
+        updatedMovie.setGenre(updateDto.getGenre());
+        updatedMovie.setDuration(updateDto.getDuration());
+        updatedMovie.setRating(updateDto.getRating());
+        updatedMovie.setReleaseYear(updateDto.getReleaseYear());
 
         when(movieService.updateMovie(eq(movieId), any(MovieRequestDto.class)))
                 .thenReturn(updatedMovie);

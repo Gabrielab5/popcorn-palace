@@ -8,8 +8,11 @@ import com.att.tdp.popcorn_palace.entity.Showtime;
 import com.att.tdp.popcorn_palace.service.BookingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,50 +27,34 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(BookingController.class)
+@ExtendWith(MockitoExtension.class)
 public class BookingControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Mock
     private BookingService bookingService;
+
+    @InjectMocks
+    private BookingController bookingController;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
-    public void contextLoads() {
-        // Test context loading for BookingController
-    }
-
-    @Test
     public void testAddBooking() throws Exception {
         BookingRequestDto requestDto = new BookingRequestDto();
-        requestDto.showtimeId = 1L;
-        requestDto.seatNumber = 10;
-        requestDto.customerName = "John Doe";
-
-        // Prepare sample entities
-        Movie movie = new Movie();
-        movie.setId(1L);
-        movie.setTitle("Inception");
-
-        Showtime showtime = new Showtime();
-        showtime.setId(1L);
-        showtime.setMovie(movie);
-        showtime.setTheater("Theater 1");
-        showtime.setStartTime(LocalDateTime.now().plusDays(1));
-        showtime.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
-        showtime.setPrice(10.0);
+        requestDto.setShowtimeId(1L);
+        requestDto.setSeatNumber(10);
+        requestDto.setCustomerName("John Doe");
 
         Booking booking = new Booking();
         booking.setId(1L);
-        booking.setShowtime(showtime);
-        booking.setSeatNumber(requestDto.seatNumber);
-        booking.setCustomerName(requestDto.customerName);
+        booking.setSeatNumber(10);
+        booking.setCustomerName("John Doe");
 
         when(bookingService.createBooking(any(BookingRequestDto.class))).thenReturn(booking);
-
         mockMvc.perform(post("/api/bookings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
@@ -75,6 +62,7 @@ public class BookingControllerTests {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.customerName").value("John Doe"));
     }
+
 
     @Test
     public void testGetAllBookings() throws Exception {
@@ -123,9 +111,9 @@ public class BookingControllerTests {
     public void testAddBookingInvalidSeatNumber() throws Exception {
         // Negative seat number should trigger validation error (HTTP 400)
         BookingRequestDto requestDto = new BookingRequestDto();
-        requestDto.showtimeId = 1L;
-        requestDto.seatNumber = -5; // invalid: negative value
-        requestDto.customerName = "John Doe";
+        requestDto.setShowtimeId(1L);
+        requestDto.setSeatNumber(-5); //INVALID NEGATIVE NUMBER
+        requestDto.setCustomerName("John Doe");
 
         mockMvc.perform(post("/api/bookings")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -137,9 +125,9 @@ public class BookingControllerTests {
     public void testAddBookingEmptyCustomerName() throws Exception {
         // Empty customer name should trigger validation error (HTTP 400)
         BookingRequestDto requestDto = new BookingRequestDto();
-        requestDto.showtimeId = 1L;
-        requestDto.seatNumber = 10;
-        requestDto.customerName = ""; 
+        requestDto.setShowtimeId(1L);
+        requestDto.setSeatNumber(10);
+        requestDto.setCustomerName("");
 
         mockMvc.perform(post("/api/bookings")
                 .contentType(MediaType.APPLICATION_JSON)

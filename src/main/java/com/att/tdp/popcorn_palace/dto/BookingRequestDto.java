@@ -8,11 +8,37 @@ import jakarta.validation.constraints.NotNull;
 public class BookingRequestDto {
     
     @NotNull(message = "Showtime ID is required")
-    public Long showtimeId;
+    private Long showtimeId;
     
     @Min(value = 1, message = "Seat number must be positive")
-    public int seatNumber;
+    private int seatNumber;
     
     @NotBlank(message = "Customer name is required")
-    public String customerName;
+    private String customerName;
+    
+   
+    // Getters & Setters
+    public Long getShowtimeId() {
+        return showtimeId;
+    }
+
+    public void setShowtimeId(Long showtimeId) {
+        this.showtimeId = showtimeId;
+    }
+
+    public int getSeatNumber() {
+        return seatNumber;
+    }
+
+    public void setSeatNumber(int seatNumber) {
+        this.seatNumber = seatNumber;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 }

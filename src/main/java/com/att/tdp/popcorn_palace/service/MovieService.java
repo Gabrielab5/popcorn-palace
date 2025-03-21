@@ -17,27 +17,25 @@ public class MovieService {
     }
 
     // Create movie
-    public Movie createMovie(Movie movie) {
-        return repository.save(movie);
+    public Movie createMovie(MovieRequestDto dto) {
+        return saveMovie(new Movie(), dto);
     }
-
+    
     // Get all movies
     public List<Movie> getAllMovies() {
         return repository.findAll();
     }
 
+    // Get movie by ID 
+    public Movie getMovieById(Long id) {
+        return repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Movie not found with ID: " + id));
+    }
+
     // Update movie
     public Movie updateMovie(Long id, MovieRequestDto dto) {
-        Movie movie = repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Movie not found with ID: " + id));
-
-        movie.setTitle(dto.title);
-        movie.setGenre(dto.genre);
-        movie.setDuration(dto.duration);
-        movie.setRating(dto.rating);
-        movie.setReleaseYear(dto.releaseYear);
-
-        return repository.save(movie);
+        Movie movie = getMovieById(id);
+        return saveMovie(movie, dto);
     }
 
     // Delete movie
@@ -46,5 +44,15 @@ public class MovieService {
             throw new ResourceNotFoundException("Movie not found with ID: " + id);
         }
         repository.deleteById(id);
+    }
+
+    // Helper method to save/update movie details
+    private Movie saveMovie(Movie movie, MovieRequestDto dto) {
+        movie.setTitle(dto.getTitle());
+        movie.setGenre(dto.getGenre());
+        movie.setDuration(dto.getDuration());
+        movie.setRating(dto.getRating());
+        movie.setReleaseYear(dto.getReleaseYear());
+        return repository.save(movie);
     }
 }

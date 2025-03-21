@@ -1,14 +1,15 @@
 package com.att.tdp.popcorn_palace.dto;
 
-import com.att.tdp.popcorn_palace.entity.Movie; 
+import com.att.tdp.popcorn_palace.entity.Movie;
 
 public class MovieResponseDto {
-    public Long id;
-    public String title;
-    public String genre;
-    public int duration;
-    public double rating;
-    public int releaseYear;
+
+    private Long id;
+    private String title;
+    private String genre;
+    private int duration;
+    private double rating;
+    private int releaseYear;
 
     public MovieResponseDto(Movie movie) {
         this.id = movie.getId();
@@ -19,4 +20,52 @@ public class MovieResponseDto {
         this.releaseYear = movie.getReleaseYear();
     }
 
+    // Getters & Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(int releaseYear) {
+        this.releaseYear = releaseYear;
+    }
 }

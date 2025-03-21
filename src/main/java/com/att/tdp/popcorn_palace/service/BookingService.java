@@ -1,7 +1,6 @@
 package com.att.tdp.popcorn_palace.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,8 @@ import com.att.tdp.popcorn_palace.exception.ResourceNotFoundException;
 import com.att.tdp.popcorn_palace.repository.BookingRepository;
 import com.att.tdp.popcorn_palace.repository.ShowtimeRepository;
 
+import jakarta.validation.Valid;
+
 @Service
 public class BookingService {
 
@@ -30,63 +31,115 @@ public class BookingService {
         this.showtimeRepository = showtimeRepository;
     }
 
-    public Booking createBooking(BookingRequestDto dto) {
-        logger.info("Attempting to create a new booking for showtimeId: {}", dto.showtimeId);
+    // Create a new booking
+    public Booking createBooking(@Valid BookingRequestDto dto) {
+        logger.info("Attempting to create a new booking for showtimeId: {}", dto.getShowtimeId());
 
-        // Validate seat number
-        if (dto.seatNumber <= 0) {
-            logger.error("Invalid seat number: {}", dto.seatNumber);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat number must be positive");
-        }
+        validateBookingRequest(dto);
+        Showtime showtime = fetchShowtimeById(dto.getShowtimeId());
+        checkSeatAvailability(showtime, dto.getSeatNumber());
 
-        // Validate customer name
-        if (dto.customerName == null || dto.customerName.trim().isEmpty()) {
-            logger.error("Customer name is required");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer name is required");
-        }
-
-        Showtime showtime = showtimeRepository.findById(dto.showtimeId)
-            .orElseThrow(() -> {
-                logger.error("Customer name is required");
-                throw new ResourceNotFoundException("Showtime not found");
-            });
-
-        // Check if the seat is already booked for this showtime
-        boolean seatBooked = bookingRepository.existsByShowtimeAndSeatNumber(showtime, dto.seatNumber);
-        if (seatBooked) {
-            logger.warn("Seat {} for showtime {} is already booked", dto.seatNumber, dto.showtimeId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat already booked for this showtime");
-        }
-        
-        Booking booking = new Booking();
-        booking.setShowtime(showtime);
-        booking.setSeatNumber(dto.seatNumber);
-        booking.setCustomerName(dto.customerName);
-
-        try {
-            Booking savedBooking = bookingRepository.save(booking);
-            logger.info("Booking created successfully: {}", savedBooking);
-            return savedBooking;
-        } catch (DataIntegrityViolationException ex) {
-            logger.error("Error saving booking: {}", ex.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat already booked");
-        }
+        Booking booking = buildBookingEntity(dto, showtime);
+        return saveBooking(booking);
     }
 
+    // Get all bookings
     public List<Booking> getAllBookings() {
         logger.info("Fetching all bookings");
         return bookingRepository.findAll();
     }
 
+    // Get booking by ID
+    public Booking getBookingById(Long id) {
+        logger.info("Fetching booking with ID: {}", id);
+        return bookingRepository.findById(id)
+            .orElseThrow(() -> {
+                logger.error("Booking with ID {} not found", id);
+                return new ResourceNotFoundException("Booking not found");
+            });
+    }
+
+    // Update booking
+    public Booking updateBooking(Long id, @Valid BookingRequestDto dto) {
+        logger.info("Attempting to update booking with ID: {}", id);
+
+        Booking existingBooking = getBookingById(id);
+        validateBookingRequest(dto);
+
+        Showtime showtime = fetchShowtimeById(dto.getShowtimeId());
+        if (existingBooking.getSeatNumber() != dto.getSeatNumber()) {
+            checkSeatAvailability(showtime, dto.getSeatNumber());
+        }
+
+        existingBooking.setShowtime(showtime);
+        existingBooking.setSeatNumber(dto.getSeatNumber());
+        existingBooking.setCustomerName(dto.getCustomerName());
+
+        return saveBooking(existingBooking);
+    }
+
+    // Delete booking by ID
     public void deleteBooking(Long id) {
         logger.info("Attempting to delete booking with ID: {}", id);
-        
-        if (!bookingRepository.existsById(id)){
+
+        if (!bookingRepository.existsById(id)) {
             logger.error("Booking with ID {} not found", id);
             throw new ResourceNotFoundException("Booking not found");
         }
-        
+
         bookingRepository.deleteById(id);
         logger.info("Booking with ID {} deleted successfully", id);
+    }
+
+    // Validate Booking Request
+    private void validateBookingRequest(BookingRequestDto dto) {
+        if (dto.getSeatNumber() <= 0) {
+            logger.error("Invalid seat number: {}", dto.getSeatNumber());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat number must be positive");
+        }
+
+        if (dto.getCustomerName() == null || dto.getCustomerName().trim().isEmpty()) {
+            logger.error("Customer name is required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer name is required");
+        }
+    }
+
+    // Fetch showtime by ID
+    private Showtime fetchShowtimeById(Long showtimeId) {
+        return showtimeRepository.findById(showtimeId)
+            .orElseThrow(() -> {
+                logger.error("Showtime with ID {} not found", showtimeId);
+                return new ResourceNotFoundException("Showtime not found");
+            });
+    }
+
+    // Check if the seat is available
+    private void checkSeatAvailability(Showtime showtime, int seatNumber) {
+        boolean seatBooked = bookingRepository.existsByShowtimeAndSeatNumber(showtime, seatNumber);
+        if (seatBooked) {
+            logger.warn("Seat {} for showtime {} is already booked", seatNumber, showtime.getId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat already booked for this showtime");
+        }
+    }
+
+    // Build booking entity
+    private Booking buildBookingEntity(BookingRequestDto dto, Showtime showtime) {
+        Booking booking = new Booking();
+        booking.setShowtime(showtime);
+        booking.setSeatNumber(dto.getSeatNumber());
+        booking.setCustomerName(dto.getCustomerName());
+        return booking;
+    }
+
+    // Save booking to database
+    private Booking saveBooking(Booking booking) {
+        try {
+            Booking savedBooking = bookingRepository.save(booking);
+            logger.info("Booking saved successfully: {}", savedBooking);
+            return savedBooking;
+        } catch (DataIntegrityViolationException ex) {
+            logger.error("Error saving booking: {}", ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat already booked");
+        }
     }
 }

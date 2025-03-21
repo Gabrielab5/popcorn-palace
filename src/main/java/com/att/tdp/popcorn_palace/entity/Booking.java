@@ -20,13 +20,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * The showtime this booking is associated with.
-     * Many bookings can be linked to one showtime.
-     */
+     //The showtime this booking is associated with, Many bookings can be linked to one showtime.
     @ManyToOne
     private Showtime showtime;
-
     private int seatNumber;
     private String customerName;
 

@@ -2,7 +2,7 @@ package com.att.tdp.popcorn_palace;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-@SpringBootApplication(scanBasePackages = "com.att.tdp.popcorn_palace.controller")
+@SpringBootApplication(scanBasePackages = "com.att.tdp.popcorn_palace")
 public class PopcornPalaceApplication {
 
 	public static void main(String[] args) {

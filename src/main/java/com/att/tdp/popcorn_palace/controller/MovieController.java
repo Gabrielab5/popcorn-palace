@@ -2,7 +2,7 @@ package com.att.tdp.popcorn_palace.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.ResponseEntity;
 
 import com.att.tdp.popcorn_palace.dto.MovieRequestDto;
 import com.att.tdp.popcorn_palace.dto.MovieResponseDto;
@@ -24,19 +24,12 @@ public class MovieController {
         this.service = service;
     }
 
-    
+
     // Create new movie
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MovieResponseDto addMovie(@Valid @RequestBody MovieRequestDto dto) {
-        Movie movie = new Movie();
-        movie.setTitle(dto.title);
-        movie.setGenre(dto.genre);
-        movie.setDuration(dto.duration);
-        movie.setRating(dto.rating);
-        movie.setReleaseYear(dto.releaseYear);
-
-        Movie savedMovie = service.createMovie(movie);
+    public MovieResponseDto addMovie(@Valid @RequestBody MovieRequestDto dto) {      
+        Movie savedMovie = service.createMovie(dto);
         return new MovieResponseDto(savedMovie);
     }
 
@@ -47,6 +40,20 @@ public class MovieController {
         return movies.stream()
             .map(MovieResponseDto::new)
             .collect(Collectors.toList());
+    }
+
+     // Get movie by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<MovieResponseDto> getMovieById(@PathVariable Long id) {
+        Movie movie = service.getMovieById(id);
+        return ResponseEntity.ok(new MovieResponseDto(movie));
+    }
+
+    // Update movie by ID
+    @PutMapping("/{id}")
+    public ResponseEntity<MovieResponseDto> updateMovie(@PathVariable Long id, @Valid @RequestBody MovieRequestDto dto) {
+        Movie updatedMovie = service.updateMovie(id, dto);
+        return ResponseEntity.ok(new MovieResponseDto(updatedMovie));
     }
 
     // Delete movie by ID

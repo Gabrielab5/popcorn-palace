@@ -2,7 +2,7 @@ package com.att.tdp.popcorn_palace.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.ResponseEntity;
 
 import com.att.tdp.popcorn_palace.dto.BookingRequestDto;
 import com.att.tdp.popcorn_palace.dto.BookingResponseDto;
@@ -31,6 +31,20 @@ public class BookingController {
         return new BookingResponseDto(savedBooking);
     }
 
+     // Get booking by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<BookingResponseDto> getBookingById(@PathVariable Long id) {
+        Booking booking = service.getBookingById(id);
+        return ResponseEntity.ok(new BookingResponseDto(booking));
+    }
+
+    // Update booking by ID
+    @PutMapping("/{id}")
+    public ResponseEntity<BookingResponseDto> updateBooking(@PathVariable Long id, @Valid @RequestBody BookingRequestDto dto) {
+        Booking updatedBooking = service.updateBooking(id, dto);
+        return ResponseEntity.ok(new BookingResponseDto(updatedBooking));
+    }
+
     // Get all bookings
     @GetMapping
     public List<BookingResponseDto> getAllBookings() {
@@ -39,7 +53,7 @@ public class BookingController {
             .collect(Collectors.toList());
     }
 
-    // Delete booking
+    // Delete booking by ID
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBooking(@PathVariable Long id) {

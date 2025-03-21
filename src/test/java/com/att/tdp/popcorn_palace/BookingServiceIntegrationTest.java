@@ -28,9 +28,6 @@ public class BookingServiceIntegrationTest {
     @Autowired
     private MovieRepository movieRepository;
 
-    @Autowired
-    //private BookingRepository bookingRepository;
-
     @Test
     public void testDuplicateBookingPrevention() {
         // creating a movie
@@ -49,9 +46,10 @@ public class BookingServiceIntegrationTest {
 
         // creating first booking
         BookingRequestDto dto = new BookingRequestDto();
-        dto.showtimeId = showtime.getId();
-        dto.seatNumber = 5;
-        dto.customerName = "Alice";
+        dto.setShowtimeId(showtime.getId());
+        dto.setSeatNumber(5);
+        dto.setCustomerName("Alice");
+
         Booking booking1 = bookingService.createBooking(dto);
         assertNotNull(booking1);
 

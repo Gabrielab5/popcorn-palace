@@ -1,17 +1,18 @@
-package com.att.tdp.popcorn_palace.controller;
+package com.att.tdp.popcorn_palace;
 
+import com.att.tdp.popcorn_palace.controller.ShowtimeController;
 import com.att.tdp.popcorn_palace.dto.ShowtimeRequestDto;
 import com.att.tdp.popcorn_palace.entity.Movie;
 import com.att.tdp.popcorn_palace.entity.Showtime;
 import com.att.tdp.popcorn_palace.service.ShowtimeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ public class ShowtimeControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
     private ShowtimeService showtimeService;
 
     @Autowired
@@ -44,27 +44,26 @@ public class ShowtimeControllerTests {
     @Test
     public void testAddShowtime() throws Exception {
         ShowtimeRequestDto requestDto = new ShowtimeRequestDto();
-        requestDto.movieId = 1L;
-        requestDto.theater = "Theater 1";
-        requestDto.startTime = LocalDateTime.now().plusDays(1);
-        requestDto.endTime = LocalDateTime.now().plusDays(1).plusHours(2);
-        requestDto.price = 10.0;
-
-        // Prepare sample Movie entity
+        requestDto.setMovieId(1L);
+        requestDto.setTheater("Theater 1");
+        requestDto.setStartTime(LocalDateTime.now().plusDays(1));
+        requestDto.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
+        requestDto.setPrice(10.0);
+    
         Movie movie = new Movie();
         movie.setId(1L);
         movie.setTitle("Inception");
-
+    
         Showtime showtime = new Showtime();
         showtime.setId(1L);
         showtime.setMovie(movie);
-        showtime.setTheater(requestDto.theater);
-        showtime.setStartTime(requestDto.startTime);
-        showtime.setEndTime(requestDto.endTime);
-        showtime.setPrice(requestDto.price);
-
+        showtime.setTheater(requestDto.getTheater());
+        showtime.setStartTime(requestDto.getStartTime());
+        showtime.setEndTime(requestDto.getEndTime());
+        showtime.setPrice(requestDto.getPrice());
+    
         when(showtimeService.createShowtime(any(ShowtimeRequestDto.class))).thenReturn(showtime);
-
+    
         mockMvc.perform(post("/api/showtimes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
@@ -72,6 +71,7 @@ public class ShowtimeControllerTests {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.movieTitle").value("Inception"));
     }
+    
 
     @Test
     public void testGetAllShowtimes() throws Exception {
@@ -116,11 +116,11 @@ public class ShowtimeControllerTests {
     public void testAddShowtimeInvalidTimeRange() throws Exception {
         // Case where startTime is after endTime, service should throw an exception.
         ShowtimeRequestDto requestDto = new ShowtimeRequestDto();
-        requestDto.movieId = 1L;
-        requestDto.theater = "Theater 1";
-        requestDto.startTime = LocalDateTime.of(2025, 4, 1, 22, 0);
-        requestDto.endTime = LocalDateTime.of(2025, 4, 1, 20, 0);
-        requestDto.price = 10.0;
+        requestDto.setMovieId(1L);
+        requestDto.setTheater("Theater 1");
+        requestDto.setStartTime(LocalDateTime.of(2025, 4, 1, 22, 0));
+        requestDto.setEndTime(LocalDateTime.of(2025, 4, 1, 20, 0));
+        requestDto.setPrice(10.0);
 
         when(showtimeService.createShowtime(any(ShowtimeRequestDto.class)))
                 .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time must be before end time"));
@@ -135,11 +135,11 @@ public class ShowtimeControllerTests {
     public void testAddOverlappingShowtime() throws Exception { 
         // Case where a new showtime overlaps with an existing one so service throws exception.
         ShowtimeRequestDto requestDto = new ShowtimeRequestDto();
-        requestDto.movieId = 1L;
-        requestDto.theater = "Theater 1";
-        requestDto.startTime = LocalDateTime.of(2025, 4, 1, 18, 0);
-        requestDto.endTime = LocalDateTime.of(2025, 4, 1, 20, 0);
-        requestDto.price = 12.0;
+        requestDto.setMovieId(1L);
+        requestDto.setTheater("Theater 1");
+        requestDto.setStartTime(LocalDateTime.of(2025, 4, 1, 20, 0));
+        requestDto.setEndTime(LocalDateTime.of(2025, 4, 1, 18, 0));
+        requestDto.setPrice(12.0);
 
         when(showtimeService.createShowtime(any(ShowtimeRequestDto.class)))
             .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Overlapping showtime in the same theater"));

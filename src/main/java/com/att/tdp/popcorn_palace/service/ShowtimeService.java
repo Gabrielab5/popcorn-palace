@@ -30,29 +30,29 @@ public class ShowtimeService {
 
     // Creates a new showtime after verifying that there is no overlapping showtime in the same theater.
     public Showtime createShowtime(ShowtimeRequestDto dto) {
-        logger.info("Attempting to create a new showtime in theater: {}", dto.theater);
+        logger.info("Attempting to create a new showtime in theater: {}", dto.getTheater());
 
         validateShowtimeRequest(dto);
 
-        Movie movie = movieRepository.findById(dto.movieId)
+        Movie movie = movieRepository.findById(dto.getMovieId())
             .orElseThrow(() -> {
-                logger.error("Movie with ID {} not found", dto.movieId);
+                logger.error("Movie with ID {} not found", dto.getMovieId());
                 return new ResourceNotFoundException("Movie not found");
             });
 
         // Check for overlapping showtimes in the same theater.
-        boolean overlapping = showtimeRepository.existsOverlappingShowtime(dto);
+        boolean overlapping = showtimeRepository.existsOverlappingShowtime(dto.getTheater(),dto.getStartTime(),dto.getEndTime());;
         if (overlapping) {
-            logger.warn("Overlapping showtime detected in theater {}", dto.theater);
+            logger.warn("Overlapping showtime detected in theater {}", dto.getTheater());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Overlapping showtime in the same theater");
         }
 
         Showtime showtime = new Showtime();
         showtime.setMovie(movie);
-        showtime.setTheater(dto.theater);
-        showtime.setStartTime(dto.startTime);
-        showtime.setEndTime(dto.endTime);
-        showtime.setPrice(dto.price);
+        showtime.setTheater(dto.getTheater());
+        showtime.setStartTime(dto.getStartTime());
+        showtime.setEndTime(dto.getEndTime());
+        showtime.setPrice(dto.getPrice());
 
         Showtime savedShowtime = showtimeRepository.save(showtime);
         logger.info("Showtime successfully created: {}", savedShowtime);
@@ -83,22 +83,22 @@ public class ShowtimeService {
         Showtime existing = getShowtimeById(id);
 
         // If any of the time or theater fields change, check for overlapping showtimes.
-        if (!existing.getTheater().equals(dto.theater) ||
-            !existing.getStartTime().equals(dto.startTime) ||
-            !existing.getEndTime().equals(dto.endTime)) {
+        if (!existing.getTheater().equals(dto.getTheater()) ||
+            !existing.getStartTime().equals(dto.getStartTime()) ||
+            !existing.getEndTime().equals(dto.getEndTime())) {
 
-            boolean overlapping = showtimeRepository.existsOverlappingShowtime(dto);
+            boolean overlapping = showtimeRepository.existsOverlappingShowtime(dto.getTheater(),dto.getStartTime(),dto.getEndTime());
             if (overlapping) {
-                logger.warn("Overlapping showtime detected in theater {}", dto.theater);
+                logger.warn("Overlapping showtime detected in theater {}", dto.getTheater());
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Overlapping showtime in the same theater");
             }
         }
 
         // Update fields
-        existing.setTheater(dto.theater);
-        existing.setStartTime(dto.startTime);
-        existing.setEndTime(dto.endTime);
-        existing.setPrice(dto.price);
+        existing.setTheater(dto.getTheater());
+        existing.setStartTime(dto.getStartTime());
+        existing.setEndTime(dto.getStartTime());
+        existing.setPrice(dto.getPrice());
 
         Showtime updatedShowtime = showtimeRepository.save(existing);
         logger.info("Showtime ID {} updated successfully", id);
@@ -120,20 +120,20 @@ public class ShowtimeService {
 
     // Helper method to validate ShowtimeRequestDto
     private void validateShowtimeRequest(ShowtimeRequestDto dto) {
-        if (dto.theater == null || dto.theater.trim().isEmpty()) {
-            logger.error("Invalid theater name: {}", dto.theater);
+        if (dto.getTheater() == null || dto.getTheater().trim().isEmpty()) {
+            logger.error("Invalid theater name: {}", dto.getTheater());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Theater name is required");
         }
-        if (dto.startTime == null || dto.endTime == null) {
+        if (dto.getStartTime() == null || dto.getEndTime() == null) {
             logger.error("Invalid showtime: StartTime or EndTime is null");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start and end times are required");
         }
-        if (!dto.startTime.isBefore(dto.endTime)) {
+        if (!dto.getStartTime().isBefore(dto.getEndTime())) {
             logger.error("Invalid showtime: Start time must be before end time");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time must be before end time");
         }
-        if (dto.price <= 0) {
-            logger.error("Invalid ticket price: {}", dto.price);
+        if (dto.getPrice() <= 0) {
+            logger.error("Invalid ticket price: {}", dto.getPrice());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ticket price must be positive");
         }
     }
