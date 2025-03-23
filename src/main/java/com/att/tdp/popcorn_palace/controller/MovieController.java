@@ -24,7 +24,6 @@ public class MovieController {
         this.service = service;
     }
 
-
     // Create new movie
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

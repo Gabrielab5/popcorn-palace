@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
  * This class will be mapped to a table named "showtime" by default.
  */
 @Entity
+@Table(name = "showtime")
 public class Showtime {
 
     @Id

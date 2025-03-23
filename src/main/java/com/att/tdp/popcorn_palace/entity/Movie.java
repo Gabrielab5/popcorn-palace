@@ -4,12 +4,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * Represents a Movie entity in the database.
  * This class will be mapped to a table named "movie" by default 
  */
 @Entity
+@Table(name = "movie")
 public class Movie {
 
     @Id

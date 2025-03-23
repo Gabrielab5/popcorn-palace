@@ -31,4 +31,8 @@ spring:
     web:
       exposure:
         include: "*"
+  logging:
+    level:
+      root: DEBUG
+
 

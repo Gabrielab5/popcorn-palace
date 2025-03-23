@@ -9,10 +9,8 @@ import jakarta.persistence.*;
  * for the same showtime.
  */
 @Entity
-@Table(
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"showtime_id", "seatNumber"})
-    }
+@Table( name = "booking", 
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"showtime_id", "seatNumber"})}
 )
 public class Booking {
 
