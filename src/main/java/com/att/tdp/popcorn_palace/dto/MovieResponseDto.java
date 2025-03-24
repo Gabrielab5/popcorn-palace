@@ -21,6 +21,7 @@ public class MovieResponseDto {
     }
 
     // Getters & Setters
+    
     public Long getId() {
         return id;
     }

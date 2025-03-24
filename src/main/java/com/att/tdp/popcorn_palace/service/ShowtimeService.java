@@ -97,7 +97,7 @@ public class ShowtimeService {
         // Update fields
         existing.setTheater(dto.getTheater());
         existing.setStartTime(dto.getStartTime());
-        existing.setEndTime(dto.getStartTime());
+        existing.setEndTime(dto.getEndTime());
         existing.setPrice(dto.getPrice());
 
         Showtime updatedShowtime = showtimeRepository.save(existing);

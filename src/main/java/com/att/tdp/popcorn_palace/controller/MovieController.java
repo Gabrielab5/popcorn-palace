@@ -32,6 +32,13 @@ public class MovieController {
         return new MovieResponseDto(savedMovie);
     }
 
+     // Update movie by ID
+    @PutMapping("/{id}")
+    public ResponseEntity<MovieResponseDto> updateMovie(@PathVariable Long id, @Valid @RequestBody MovieRequestDto dto) {
+        Movie updatedMovie = service.updateMovie(id, dto);
+        return ResponseEntity.ok(new MovieResponseDto(updatedMovie));
+    }
+    
     // Get all movies
     @GetMapping
     public List<MovieResponseDto> getAllMovies() {
@@ -46,13 +53,6 @@ public class MovieController {
     public ResponseEntity<MovieResponseDto> getMovieById(@PathVariable Long id) {
         Movie movie = service.getMovieById(id);
         return ResponseEntity.ok(new MovieResponseDto(movie));
-    }
-
-    // Update movie by ID
-    @PutMapping("/{id}")
-    public ResponseEntity<MovieResponseDto> updateMovie(@PathVariable Long id, @Valid @RequestBody MovieRequestDto dto) {
-        Movie updatedMovie = service.updateMovie(id, dto);
-        return ResponseEntity.ok(new MovieResponseDto(updatedMovie));
     }
 
     // Delete movie by ID

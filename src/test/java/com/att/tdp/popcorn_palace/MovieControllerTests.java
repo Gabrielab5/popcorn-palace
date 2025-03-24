@@ -5,9 +5,14 @@ import com.att.tdp.popcorn_palace.dto.MovieRequestDto;
 import com.att.tdp.popcorn_palace.entity.Movie;
 import com.att.tdp.popcorn_palace.service.MovieService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,22 +28,35 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(MovieController.class)
+// Integration tests for MovieController endpoints.
+@SpringBootTest
+@AutoConfigureMockMvc
 public class MovieControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
     private MovieService movieService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    public void contextLoads() {
-        // Test to ensure the application context loads successfully
+    @Autowired
+    private MovieController movieController;
+
+    @BeforeEach
+    public void setup() {
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
+    // Verifies the context loads and the controller is injected.
+    @Test
+    public void contextLoads() {
+        assert(movieController != null);
+    }
+
+    // Tests adding a new movie through POST /api/movies.
     @Test
     public void testAddMovie() throws Exception {
         MovieRequestDto requestDto = new MovieRequestDto();
@@ -66,7 +84,7 @@ public class MovieControllerTests {
                 .andExpect(jsonPath("$.title").value("Inception"));
     }
     
-
+    //  Tests fetching all movies with GET /api/movies
     @Test
     public void testGetAllMovies() throws Exception {
         Movie movie1 = new Movie();
@@ -95,11 +113,12 @@ public class MovieControllerTests {
                 .andExpect(jsonPath("$[1].title").value("Interstellar"));
     }
 
+    // Tests updating a movie with PUT /api/movies/{id}
     @Test
     public void testUpdateMovie() throws Exception {
         Long movieId = 1L;
         MovieRequestDto updateDto = new MovieRequestDto();
-        updateDto.setTitle("UPDATE Inception");
+        updateDto.setTitle("Inception Updated");
         updateDto.setGenre("Sci-Fi");
         updateDto.setDuration(148);
         updateDto.setRating(8.9);
@@ -123,6 +142,7 @@ public class MovieControllerTests {
                 .andExpect(jsonPath("$.title").value("Inception Updated"));
     }
 
+    // Tests deleting a movie with DELETE /api/movies/{id}
     @Test
     public void testDeleteMovie() throws Exception {
         Long movieId = 1L;
@@ -130,5 +150,26 @@ public class MovieControllerTests {
 
         mockMvc.perform(delete("/api/movies/" + movieId))
                 .andExpect(status().isNoContent());
+    }
+
+    // Tests retrieving a movie by ID using GET /api/movies/{id}
+    @Test
+    public void testGetMovieById() throws Exception {
+        Long movieId = 1L;
+        Movie movie = new Movie();
+        movie.setId(movieId);
+        movie.setTitle("Inception");
+        movie.setGenre("Sci-Fi");
+        movie.setDuration(148);
+        movie.setRating(8.8);
+        movie.setReleaseYear(2010);
+
+        when(movieService.getMovieById(movieId)).thenReturn(movie);
+
+        mockMvc.perform(get("/api/movies/" + movieId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(movieId))
+                .andExpect(jsonPath("$.title").value("Inception"));
     }
 }

@@ -10,7 +10,7 @@ spring:
     password: popcorn-palace
     driverClassName: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10  # Optimize connection pooling
+      maximum-pool-size: 10 
       minimum-idle: 2
       idle-timeout: 30000
       max-lifetime: 1800000
@@ -21,18 +21,21 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
-  sql:
     init:
       mode: never  
   management:
   endpoints:
     health:
-      show-details: always  # Show full health details
+      show-details: always 
     web:
       exposure:
         include: "*"
   logging:
     level:
       root: DEBUG
+  spring:
+  sql:
+    init:
+      mode: always
 
 
